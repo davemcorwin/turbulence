@@ -1,5 +1,37 @@
+body{
+  box: border-box;
+}
+
 .diagram-container{
   display: inline-block;
   padding: 20px;
   height: 100%;
+}
+
+.legend{
+  position: fixed;
+  background-color: #DCDCDC;
+  width: 300px;
+  top: 100;
+  right: show ? 0 : -310;
+  height: 100%;
+  overflow-y: scroll;
+  padding: 5px
+}
+
+.legend-toggle{
+  position: fixed;
+  right: show ? 310 : 0;
+  top: 140px;
+  background-color: #DCDCDC;
+  border-right: none;
+  width: 40px;
+  height: 40px;
+  font-dize: 24px;
+  text-align: center;
+}
+
+.legend-toggle-link{
+  text-decoration: none;
+  color: black
 }
