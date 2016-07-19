@@ -2,6 +2,6 @@ import React from 'react'
 
 export default ({ onSubmit }) =>
   <form onSubmit={onSubmit}>
-    <input type="text" name="title"/>
-    <button type="submit">New Diagram</button>
+    <input type="text" name="title" placeholder="New Diagram..."/>
+    <button type="submit">Add</button>
   </form>

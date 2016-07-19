@@ -2,8 +2,12 @@ body{
   box: border-box;
 }
 
+button[type='submit']{
+  margin-left: 5px;
+}
+
 .projects-container{
-  width: 200px;
+  width: 250px;
   float: left;
 }
 

@@ -21,8 +21,6 @@ export default class App extends React.Component {
     this.db
       .allDocs({ include_docs: true })
       .then(doc =>
-        console.log('received')
-        console.log(doc)
         this.setState({
           projects: doc.rows.filter(row => row.doc.type === 'project').map(row => row.doc),
           diagrams: doc.rows.filter(row => row.doc.type === 'diagram').map(row => row.doc)
@@ -47,7 +45,8 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.db = new PouchDB('turbulence')
-    this.sync = PouchDB.sync('turbulence', 'https://turbulence.smileupps.com', { live: true, retry: true })
+    // this.remote = new PouchDB('http://turbulence.smileupps.com')
+    // this.sync = PouchDB.sync(this.db, this.remote, { live: true, retry: true })
 
     this.db
       .changes({ since: 'now', live: true, include_docs: true })
@@ -93,6 +92,24 @@ export default class App extends React.Component {
     })
   }
 
+  newProject(e) {
+    e.preventDefault()
+    const el = e.currentTarget.name
+    const name = el.value
+    if (name) {
+      this.db.post({
+        type: 'project',
+        name: name,
+        slug: _.kebabCase(name)
+      }).then(() => el.value = '')
+    }
+  }
+
+  deleteProject(projectId, e) {
+    e.preventDefault()
+    this.db.remove(_.find(this.state.projects, { _id: projectId }))
+  }
+
   render() {
 
     const projects = _.sortBy(this.state.projects, '_id')
@@ -104,14 +121,29 @@ export default class App extends React.Component {
 
         <div className="projects-container">
           <h3>Projects</h3>
-          <ul>
+          <form onSubmit={this.newProject.bind(this)}>
+            <input type="text" name="name" placeholder="New Project..." />
+            <button type="submit">Add</button>
+          </form>
+          <ul style={{listStyleType: 'none', paddingLeft: '5px'}}>
             {projects.map(project =>
-              <li key={project._id}>
+              <li key={project._id} style={{marginBottom: '5px'}}>
                 <a
                   href="#"
                   onClick={this.selectProject.bind(this, project._id)}>
 
                   {project.name}
+                </a>
+                <a
+                  href="#"
+                  onClick={this.deleteProject.bind(this, project._id)}
+                  style={{
+                    float: 'right',
+                    marginRight: '90px',
+                    textDecoration: 'none'
+                  }}>
+
+                  X
                 </a>
               </li>
             )}
