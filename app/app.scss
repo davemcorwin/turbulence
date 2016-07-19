@@ -2,6 +2,16 @@ body{
   box: border-box;
 }
 
+.projects-container{
+  width: 200px;
+  float: left;
+}
+
+.project-container{
+  margin-top: 2.5rem;
+  margin-left: 200px;
+}
+
 .diagram-container{
   display: inline-block;
   padding: 20px;
@@ -12,26 +22,45 @@ body{
   position: fixed;
   background-color: #DCDCDC;
   width: 300px;
-  top: 100;
-  right: show ? 0 : -310;
-  height: 100%;
+  top: 0px;
+  right: -310px;
+  height: 98%;
   overflow-y: scroll;
-  padding: 5px
+  padding: 5px;
+  transition: right 0.5s;
+
+  &.active{
+    right: 0px;
+  }
+
+  .title{
+    text-align: center;
+    text-decoration: underline;
+  }
 }
 
 .legend-toggle{
   position: fixed;
-  right: show ? 310 : 0;
+  right: 0px;
   top: 140px;
   background-color: #DCDCDC;
   border-right: none;
   width: 40px;
   height: 40px;
-  font-dize: 24px;
+  font-size: 24px;
+  font-weight: bold;
   text-align: center;
+  border-radius: 10px 0px 0px 10px;
+  padding-top: 10px;
+  transition: right 0.5s;
+
+  &.active{
+    right: 310px;
+  }
 }
 
 .legend-toggle-link{
   text-decoration: none;
-  color: black
+  color: black;
+  font-size: 24px;
 }

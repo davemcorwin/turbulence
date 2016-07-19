@@ -19,18 +19,19 @@ export default class Legend extends React.Component {
     return (
       <div>
 
-        <div className="legend-toggle">
+        <div className={`legend-toggle ${show ? 'active': ''}`}>
+
           <a
             href="#"
             className="legend-toggle-link"
             onClick={this.toggleLegend.bind(this)}>
 
-            { show ? '>>' : '<<' }
+            { show ? '>' : '?' }
           </a>
         </div>
 
-        <aside className="legend">
-
+        <aside className={`legend ${show ? 'active': ''}`}>
+          <h3 className="title">Legend</h3>
           {this.props.legendEntries.map((entry, idx) =>
             <div key={idx}>
               <p><b>{entry.title}</b></p>
