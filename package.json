@@ -15,6 +15,7 @@
     "classnames": "^2.2.5",
     "flowchart.js": "^1.6.3",
     "lodash": "^4.13.1",
+    "pouchdb": "^5.4.5",
     "react": "~0.14.7",
     "react-dom": "~0.14.7"
   },

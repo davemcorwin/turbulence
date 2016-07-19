@@ -1,4 +1,6 @@
 import React from 'react'
+import PouchDB from 'pouchdb'
+import _ from 'lodash'
 
 import {
   DiagramForm,
@@ -11,52 +13,74 @@ export default class App extends React.Component {
   constructor() {
     super()
     this.state = initialState()
+    this.updatePouch = this.updatePouch.bind(this)
+  }
+
+  updatePouch() {
+    this.db
+      .allDocs({include_docs: true, descending: true})
+      .then(doc =>
+        this.setState({
+          projects: doc.rows.filter(row => row.doc.type === 'project').map(row => row.doc),
+          diagrams: doc.rows.filter(row => row.doc.type === 'diagram').map(row => row.doc)
+        })
+      )
+  }
+
+  componentDidMount() {
+    this.db = new PouchDB('turbulance')
+    this.sync = PouchDB.sync('turbulance', 'https://couchdb-52bcde.smileupps.com', { live: true, retry: true })
+
+    this.db
+      .changes({ since: 'now', live: true })
+      .on('change', this.updatePouch)
+
+    this.updatePouch()
+  }
+
+  componentWillUnmount() {
+    this.sync.cancel()
   }
 
   updateDiagram(diagramId, e) {
     e.preventDefault()
 
-    const { diagrams } = this.state
-
-    const newDiagram = {
-      ...diagrams.find(diagram => diagram.id === diagramId),
+    const diagram = {
+      ...this.state.diagrams.find(diagram => diagram._id === diagramId),
       plan: e.currentTarget.value
     }
 
-    diagrams.splice(idx, 1, newDiagram)
+    // this.db.put(diagram)
 
-    this.setState({ diagrams: [ ...diagrams ] })
+    // optimistic
+    this.setState({
+      diagrams: [ ...this.state.diagrams.filter(d => d._id !== diagramId), diagram]
+    }, this.db.put(diagram))
   }
 
   newDiagram(e) {
     e.preventDefault()
-    const title = e.currentTarget.title.value
+    const el = e.currentTarget.title
+    const title = el.value
     if (title) {
-      this.setState({
-        diagrams: [
-          ...this.state.diagrams,
-          {
-            id: (Math.max(this.state.diagrams.map(diagram => diagram.id)) || 0) + 1,
-            project: this.state.project.id,
-            title: title,
-            plan: this.state.defaultPlan
-          }
-        ]
-      }, e.currentTarget.title.value = '')
+      this.db.post({
+        type: 'diagram',
+        project: this.state.project._id,
+        title: title,
+        plan: this.state.defaultPlan
+      }).then(() => el.value = '')
     }
   }
 
   deleteDiagram(diagramId, e) {
     e.preventDefault()
-    this.setState({
-      diagrams: [ ...this.state.diagrams.filter(diagram => diagram.id !== diagramId) ]
-    })
+    this.db.remove(this.state.diagrams.find(diagram => diagram._id === diagramId))
   }
 
   selectProject(projectId, e) {
     e.preventDefault()
     this.setState({
-      project: this.state.projects.find(project => project.id === projectId)
+      project: this.state.projects.find(project => project._id === projectId)
     })
   }
 
@@ -70,7 +94,14 @@ export default class App extends React.Component {
           <h3>Projects</h3>
           <ul>
             {this.state.projects.map(project =>
-              <li><a href="#" onClick={this.selectProject.bind(this, project.id)}>{project.name}</a></li>
+              <li key={project._id}>
+                <a
+                  href="#"
+                  onClick={this.selectProject.bind(this, project._id)}>
+
+                  {project.name}
+                </a>
+              </li>
             )}
           </ul>
         </div>
@@ -82,14 +113,14 @@ export default class App extends React.Component {
             <DiagramForm onSubmit={this.newDiagram.bind(this)} />
 
             { this.state.diagrams
-                .filter(diagram => diagram.project === this.state.project.id)
+                .filter(diagram => diagram.project === this.state.project._id)
                 .map((diagram, idx) =>
               <DiagramContainer
-                remove={this.deleteDiagram.bind(this, diagram.id)}
+                remove={this.deleteDiagram.bind(this, diagram._id)}
                 diagram={diagram}
                 idx={idx}
-                key={idx}
-                update={this.updateDiagram.bind(this, diagram.id)} />
+                key={diagram._id}
+                update={this.updateDiagram.bind(this, diagram._id)} />
             )}
           </div>
           : null
@@ -104,15 +135,7 @@ export default class App extends React.Component {
 
 const initialState = () => ({
   project: null,
-  projects: [{
-    id:   1,
-    name: 'CashUp',
-    slug: 'cashup'
-  },{
-    id:   2,
-    name: 'Trusted Herd',
-    slug: 'trusted-herd'
-  }],
+  projects: [],
   diagrams: [],
   defaultPlan: `st=>start: Start
 op1=>operation: Operation
