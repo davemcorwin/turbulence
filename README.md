@@ -4,7 +4,7 @@ Fast, simple, text-driven workflow diagrams.
 
 Based on the great work of [flowchart.js](http://flowchart.js.org/).
 
-## See it running on [Suuuuuuuuuuuuuurge!](turbulence.surge.sh)
+## See it running on [Suuuuuuuuuuuuuurge!](http://turbulence.surge.sh)
 
 ## Getting started
 
