@@ -21,6 +21,8 @@ export default class App extends React.Component {
     this.db
       .allDocs({ include_docs: true })
       .then(doc =>
+        console.log('received')
+        console.log(doc)
         this.setState({
           projects: doc.rows.filter(row => row.doc.type === 'project').map(row => row.doc),
           diagrams: doc.rows.filter(row => row.doc.type === 'diagram').map(row => row.doc)
@@ -45,7 +47,7 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.db = new PouchDB('turbulence')
-    this.sync = PouchDB.sync('turbulence', 'https://couchdb-52bcde.smileupps.com', { live: true, retry: true })
+    this.sync = PouchDB.sync('turbulence', 'https://turbulence.smileupps.com', { live: true, retry: true })
 
     this.db
       .changes({ since: 'now', live: true, include_docs: true })
