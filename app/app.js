@@ -16,9 +16,10 @@ export default class App extends React.Component {
     this.updatePouch = this.updatePouch.bind(this)
   }
 
-  updatePouch() {
+  initializePouch() {
+
     this.db
-      .allDocs({include_docs: true, descending: true})
+      .allDocs({ include_docs: true })
       .then(doc =>
         this.setState({
           projects: doc.rows.filter(row => row.doc.type === 'project').map(row => row.doc),
@@ -27,35 +28,41 @@ export default class App extends React.Component {
       )
   }
 
+  updatePouch(change) {
+
+    const doc = change.doc
+
+    const newState = {
+      projects: this.state.projects.filter(prj => prj._id !== doc._id),
+      diagrams: this.state.diagrams.filter(dgm => dgm._id !== doc._id)
+    }
+
+    if (!change.deleted)
+      newState[`${doc.type}s`] = [ ...newState[`${doc.type}s`], doc ]
+
+    this.setState(newState)
+  }
+
   componentDidMount() {
     this.db = new PouchDB('turbulance')
     this.sync = PouchDB.sync('turbulance', 'https://couchdb-52bcde.smileupps.com', { live: true, retry: true })
 
     this.db
-      .changes({ since: 'now', live: true })
+      .changes({ since: 'now', live: true, include_docs: true })
       .on('change', this.updatePouch)
 
-    this.updatePouch()
+    this.initializePouch()
   }
 
   componentWillUnmount() {
     this.sync.cancel()
   }
 
-  updateDiagram(diagramId, e) {
-    e.preventDefault()
-
-    const diagram = {
-      ...this.state.diagrams.find(diagram => diagram._id === diagramId),
-      plan: e.currentTarget.value
-    }
-
-    // this.db.put(diagram)
-
-    // optimistic
-    this.setState({
-      diagrams: [ ...this.state.diagrams.filter(d => d._id !== diagramId), diagram]
-    }, this.db.put(diagram))
+  updateDiagram(diagramId, plan) {
+    this.db.put({
+      ..._.find(this.state.diagrams, {_id: diagramId}),
+      plan
+    })
   }
 
   newDiagram(e) {
@@ -85,6 +92,9 @@ export default class App extends React.Component {
   }
 
   render() {
+
+    const projects = _.sortBy(this.state.projects, '_id')
+
     return (
       <div>
 
@@ -93,7 +103,7 @@ export default class App extends React.Component {
         <div className="projects-container">
           <h3>Projects</h3>
           <ul>
-            {this.state.projects.map(project =>
+            {projects.map(project =>
               <li key={project._id}>
                 <a
                   href="#"
@@ -112,16 +122,19 @@ export default class App extends React.Component {
 
             <DiagramForm onSubmit={this.newDiagram.bind(this)} />
 
-            { this.state.diagrams
-                .filter(diagram => diagram.project === this.state.project._id)
+            { _.chain(this.state.diagrams)
+                .filter({ project: this.state.project._id })
+                .sortBy('_id')
                 .map((diagram, idx) =>
-              <DiagramContainer
-                remove={this.deleteDiagram.bind(this, diagram._id)}
-                diagram={diagram}
-                idx={idx}
-                key={diagram._id}
-                update={this.updateDiagram.bind(this, diagram._id)} />
-            )}
+                  <DiagramContainer
+                    remove={this.deleteDiagram.bind(this, diagram._id)}
+                    diagram={diagram}
+                    idx={idx}
+                    key={diagram._id}
+                    update={this.updateDiagram.bind(this, diagram._id)} />
+                )
+                .value()
+            }
           </div>
           : null
         }
