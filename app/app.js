@@ -44,8 +44,8 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    this.db = new PouchDB('turbulance')
-    this.sync = PouchDB.sync('turbulance', 'https://couchdb-52bcde.smileupps.com', { live: true, retry: true })
+    this.db = new PouchDB('turbulence')
+    this.sync = PouchDB.sync('turbulence', 'https://couchdb-52bcde.smileupps.com', { live: true, retry: true })
 
     this.db
       .changes({ since: 'now', live: true, include_docs: true })
@@ -98,7 +98,7 @@ export default class App extends React.Component {
     return (
       <div>
 
-        <h1 style={{textAlign: 'center'}}>Turbulance</h1>
+        <h1 style={{textAlign: 'center'}}>Turbulence</h1>
 
         <div className="projects-container">
           <h3>Projects</h3>
