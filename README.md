@@ -2,7 +2,9 @@
 
 Fast, simple, text-driven workflow diagrams.
 
-Based on the great work of [flowchart.js](http://flowchart.js.org/)
+Based on the great work of [flowchart.js](http://flowchart.js.org/).
+
+## See it running on [Suuuuuuuuuuuuuurge!](turbulence.surge.sh)
 
 ## Getting started
 
@@ -12,5 +14,5 @@ In the folder of your choice
 * `npm i`
 * `npm start`
 
-## Deploy to surge
+## Deploy to Suuuuuuuuuuuuuuurge!
 * `npm run deploy`
