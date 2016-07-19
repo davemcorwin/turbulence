@@ -8,10 +8,6 @@ export default class DiagramContainer extends React.Component{
     this.state = { plan: props.diagram.plan }
   }
 
-  // shoudComponentUpdate(nextProps) {
-  //   return this.props.diagram.plan !== nextProps.diagram.plan
-  // }
-
   updatePlan(e) {
     e.preventDefault()
     const plan = e.currentTarget.value
